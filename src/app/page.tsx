@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type Place = {
@@ -35,7 +35,36 @@ function slugToVibe(slug: string, vibes: string[]) {
 
 const FAVORITES_KEY = "vah_favorites_v1";
 
+// ✅ Wrapper component (no useSearchParams here)
 export default function Home() {
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomeClient />
+    </Suspense>
+  );
+}
+
+function HomeFallback() {
+  return (
+    <main className="min-h-screen bg-[#0B0B10] text-white">
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
+            <span className="h-2 w-2 rounded-full bg-amber-400" />
+            Loading vibe-a-holic
+          </div>
+          <h1 className="mt-6 text-3xl font-semibold">Pick the vibe.</h1>
+          <p className="mt-2 text-white/70">
+            Getting everything ready for you…
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+// ✅ Client component (safe to use useSearchParams)
+function HomeClient() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -76,7 +105,7 @@ export default function Home() {
     }
   }
 
-  // ✅ Your places live here, but now each one has a unique id
+  
   const places: Place[] = useMemo(
     () => [
       // FIRST DATE
@@ -364,7 +393,7 @@ export default function Home() {
         tags: ["rich coffee", "friendly", "breakfast sandwiches"],
         address: "119 S 21st St, Philadelphia, PA 19103",
         description:
-          "Premier coffee with friendly workers in the heart of the city. Plays good music for that working-friendly vibe",
+          "Premier coffee with friendly workers in the heart of the city. Plays good music for that working-friendly vibe.",
       },
 
       // BEST OF BOTH WORLDS
@@ -423,7 +452,7 @@ export default function Home() {
         tags: ["good value", "cool", "quick", "always solid"],
         address: "248 S 11th St, Philadelphia, PA",
         description:
-          "A true best-of-both-worlds move: cool enough to impress, affordable enough to repeat, and flexible enough to fit any plan. Grab a quick bite, take it to-go, or make it a casual link-up with friends.",
+          "A true best-of-both-worlds move: cool enough to impress, affordable enough to repeat, and flexible enough to fit any plan. Grab a quick bite, take it to-go, or make it a casual link-up.",
       },
       {
         id: "oyster-house-happy-hour",
@@ -431,10 +460,10 @@ export default function Home() {
         vibe: "Happy Hour",
         neighborhood: "Rittenhouse Row",
         price: 2,
-        tags: ["Dive", "Classy", "Oysters", "No reservations"],
+        tags: ["dive", "classy", "oysters", "no reservations"],
         address: "1516 Sansom St, Philadelphia, PA 19102",
         description:
-          "Happy hour Thursday-Friday at 4pm to 6pm serving oysters for 2 dollars.",
+          "Happy hour Thursday–Friday from 4pm–6pm with $2 oysters.",
       },
       {
         id: "wilder-happy-hour",
@@ -442,10 +471,10 @@ export default function Home() {
         vibe: "Happy Hour",
         neighborhood: "Logan Square",
         price: 2,
-        tags: ["Classy", "Seafood", "Mocktials"],
-        address: "2009 Sansom Street, Philadelphia, PA, 19103",
+        tags: ["classy", "seafood", "mocktails"],
+        address: "2009 Sansom Street, Philadelphia, PA 19103",
         description:
-          "For nonalcholic drinkers. Have an array of mocktails on their menu, with happy hour specials from 4:30pm to 6:30pm",
+          "Great for non-alcoholic drinkers. Happy hour specials from 4:30pm–6:30pm and a strong mocktail lineup.",
       },
       {
         id: "good-dog-happy-hour",
@@ -453,10 +482,10 @@ export default function Home() {
         vibe: "Happy Hour",
         neighborhood: "Center City",
         price: 2,
-        tags: ["Dive", "Inexpensive", "Feels like home", "Great food and drinks"],
+        tags: ["dive", "inexpensive", "feels like home", "great food"],
         address: "224 S 15th St, Philadelphia, PA 19102",
         description:
-          "Happy hour Monday to Friday from 3pm to 6pm. Half off all draughts. $5 mixed drinks, $6 wines, and half off small bites. Great comfortable vibe, making it the perfect dive bar.",
+          "Happy hour Monday–Friday from 3pm–6pm: half off all draughts, $5 mixed drinks, $6 wines, and half off small bites.",
       },
     ],
     []
@@ -484,7 +513,7 @@ export default function Home() {
     return vibeOrder.concat(extras);
   }, [vibes]);
 
-  // Load favorites
+  // Load favorites (local only)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(FAVORITES_KEY);
@@ -492,14 +521,14 @@ export default function Home() {
     } catch {}
   }, []);
 
-  // Save favorites
+  // Save favorites (local only)
   useEffect(() => {
     try {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
     } catch {}
   }, [favorites]);
 
-  // read vibe from URL (?vibe=first-date)
+  // Read vibe from URL (?vibe=first-date)
   useEffect(() => {
     const slug = params.get("vibe");
     if (!slug) return;
@@ -507,7 +536,7 @@ export default function Home() {
     if (vibe) setSelectedVibe(vibe);
   }, [params, vibes]);
 
-  // write vibe to URL when selected
+  // Write vibe to URL when selected
   useEffect(() => {
     if (!selectedVibe) return;
     const slug = vibeToSlug(selectedVibe);
@@ -534,9 +563,10 @@ export default function Home() {
   const favoriteCount = Object.keys(favorites).length;
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-white">
+    <main className="min-h-screen bg-[#0B0B10] text-white">
       {/* HERO */}
       <section className="relative overflow-hidden">
+        {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -544,29 +574,58 @@ export default function Home() {
               "url('https://images.unsplash.com/photo-1619951007086-ab6ef9affbf1?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           }}
         />
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+        {/* Dark + warm overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-[#0B0B10]" />
+        {/* subtle glow */}
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-6 py-14 md:py-20">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              Philly spots, sorted by vibe
+          {/* Top nav */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-lg font-semibold">
+                V
+              </div>
+              <div>
+                <div className="text-sm font-semibold tracking-wide text-white">
+                  vibe-a-holic
+                </div>
+                <div className="text-xs text-white/70">
+                  Philadelphia • curated by vibe
+                </div>
+              </div>
             </div>
 
-            <div className="text-xs text-white/70">
-              Favorites:{" "}
-              <span className="font-semibold text-white">{favoriteCount}</span>
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:block text-xs text-white/70">
+                Favorites:{" "}
+                <span className="font-semibold text-white">
+                  {favoriteCount}
+                </span>
+              </div>
+              <button
+                onClick={copyShareLink}
+                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur hover:bg-white/10"
+              >
+                Share
+              </button>
             </div>
           </div>
 
-          <h1 className="mt-5 text-5xl font-bold tracking-tight md:text-6xl">
-            vibe-a-holic
+          <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
+            <span className="h-2 w-2 rounded-full bg-amber-400" />
+            Calm, curated Philly picks — sorted by vibe
+          </div>
+
+          <h1 className="mt-10 text-5xl font-semibold tracking-tight md:text-6xl">
+            Pick the vibe. Find the spot.
           </h1>
 
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
-            Stop overthinking the plan. Pick a vibe — we’ll handle the rest.
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/80">
+            Comforting, trustworthy picks for whatever you’re feeling — first
+            dates, cozy nights, study sessions, and low-key hangs. No noise, just
+            good options.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 md:flex-row md:items-center">
@@ -579,12 +638,39 @@ export default function Home() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search (e.g. fishtown, cozy, brunch, cocktails)…"
-                  className="w-full rounded-2xl border border-white/15 bg-white/10 px-11 py-4 text-white placeholder:text-white/50 backdrop-blur focus:outline-none focus:ring-2 focus:ring-white/60"
+                  className="w-full rounded-2xl border border-white/15 bg-white/10 px-11 py-4 text-white placeholder:text-white/40 backdrop-blur focus:outline-none focus:ring-2 focus:ring-amber-300/60"
                 />
               </div>
               <p className="mt-2 text-xs text-white/60">
                 Tip: pick a vibe first, then search to narrow it down.
               </p>
+
+              {/* How it works */}
+              <div className="mt-4 rounded-2xl border border-white/15 bg-white/5 p-4 text-sm text-white/75 backdrop-blur">
+                <div className="font-medium text-white">How it works</div>
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  <li>Choose a vibe (First Date, Chill, Brunch, etc.)</li>
+                  <li>Use search to narrow by neighborhood, tags, or mood</li>
+                  <li>Save favorites so you always have a plan ready</li>
+                </ul>
+              </div>
+
+              {/* Trust chips */}
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {[
+                  "Curated, not random",
+                  "Easy to pick from",
+                  "Great for dates + friends",
+                  "Favorites saved locally",
+                ].map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/75 backdrop-blur"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -597,34 +683,59 @@ export default function Home() {
                     behavior: "smooth",
                   });
                 }}
-                className="rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-black transition hover:opacity-90"
+                className="rounded-2xl bg-amber-500 px-5 py-4 text-sm font-semibold text-black shadow-sm transition hover:bg-amber-400"
               >
                 Explore
               </button>
 
               <button
-                onClick={copyShareLink}
-                className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/15"
+                onClick={() => {
+                  setSelectedVibe(null);
+                  setActivePlace(null);
+                  setSearch("");
+                  router.replace("/", { scroll: false });
+                  showToast("Cleared.");
+                }}
+                className="rounded-2xl border border-white/15 bg-white/5 px-5 py-4 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
               >
-                Copy share link
+                Reset
               </button>
             </div>
+          </div>
+
+          {/* Quick vibes */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {["First Date", "Chill", "Brunch", "Happy Hour"].map((v) => (
+              <button
+                key={v}
+                onClick={() => {
+                  setSelectedVibe(v);
+                  setActivePlace(null);
+                  document.getElementById("picker")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
+                className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur hover:bg-white/10"
+              >
+                {v}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CONTENT */}
-      <section className="bg-neutral-50 text-neutral-900">
+      <section className="bg-[#0B0B10] text-white">
         <div className="mx-auto max-w-6xl px-6 py-14">
           <div className="grid gap-10 md:grid-cols-12">
             {/* Left / Picker */}
             <div id="picker" className="md:col-span-4">
-              <div className="sticky top-6 rounded-3xl border bg-white p-6 shadow-sm">
+              <div className="sticky top-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-xl font-semibold">Pick Your Vibe</h2>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Tap one to see the best matches.
+                    <p className="mt-1 text-sm text-white/70">
+                      Tap one to see a small, curated list.
                     </p>
                   </div>
 
@@ -635,8 +746,9 @@ export default function Home() {
                         setActivePlace(null);
                         setSearch("");
                         router.replace("/", { scroll: false });
+                        showToast("Cleared filters.");
                       }}
-                      className="text-sm font-medium text-neutral-600 underline hover:text-black"
+                      className="text-sm font-medium text-white/70 underline hover:text-white"
                     >
                       Clear
                     </button>
@@ -652,10 +764,10 @@ export default function Home() {
                         setActivePlace(null);
                       }}
                       className={[
-                        "rounded-full border px-4 py-2 text-sm font-medium transition",
+                        "rounded-full border px-4 py-2 text-sm font-medium transition backdrop-blur",
                         selectedVibe === vibe
-                          ? "border-black bg-black text-white"
-                          : "border-neutral-300 bg-white hover:border-black hover:bg-black hover:text-white",
+                          ? "border-amber-300/50 bg-amber-400/10 text-amber-100"
+                          : "border-white/10 bg-white/5 text-white/80 hover:border-white/20 hover:bg-white/10 hover:text-white",
                       ].join(" ")}
                     >
                       {vibe}
@@ -663,12 +775,12 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-2xl border bg-neutral-50 p-4">
-                  <p className="text-xs text-neutral-600">
+                <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-xs text-white/70">
                     {selectedVibe ? (
                       <>
                         Showing:{" "}
-                        <span className="font-semibold text-neutral-900">
+                        <span className="font-semibold text-white">
                           {selectedVibe}
                         </span>{" "}
                         • {filteredPlaces.length} result
@@ -685,13 +797,13 @@ export default function Home() {
             {/* Right / Results */}
             <div className="md:col-span-8">
               {!selectedVibe && (
-                <div className="rounded-3xl border bg-white p-10 shadow-sm">
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-10 shadow-sm backdrop-blur">
                   <h3 className="text-2xl font-semibold">
-                    Start by choosing a vibe
+                    Let’s find the right place
                   </h3>
-                  <p className="mt-2 text-neutral-600">
-                    Then use the search bar to filter by neighborhood, tags, or
-                    descriptions.
+                  <p className="mt-2 text-white/70">
+                    Pick a vibe on the left — we’ll show a small, curated list so
+                    it’s easy to choose.
                   </p>
                 </div>
               )}
@@ -703,16 +815,16 @@ export default function Home() {
                       <h3 className="text-2xl font-semibold">
                         Places for {selectedVibe}
                       </h3>
-                      <p className="mt-1 text-sm text-neutral-600">
+                      <p className="mt-1 text-sm text-white/70">
                         Click a card for details + address.
                       </p>
                     </div>
 
-                    <div className="text-sm text-neutral-600">
+                    <div className="text-sm text-white/70">
                       {search.trim() ? (
                         <>
                           Filter:{" "}
-                          <span className="font-medium text-neutral-900">
+                          <span className="font-medium text-white">
                             “{search.trim()}”
                           </span>
                         </>
@@ -723,8 +835,8 @@ export default function Home() {
                   </div>
 
                   {filteredPlaces.length === 0 && (
-                    <div className="rounded-3xl border bg-white p-10 shadow-sm">
-                      <p className="text-neutral-700">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-10 shadow-sm backdrop-blur">
+                      <p className="text-white/80">
                         No matches. Try a different search or clear filters.
                       </p>
                     </div>
@@ -740,30 +852,30 @@ export default function Home() {
                             onClick={() => setActivePlace(place)}
                             className="group text-left"
                           >
-                            <div className="relative overflow-hidden rounded-3xl border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                              <div className="absolute inset-x-0 top-0 h-1 bg-neutral-900 opacity-0 transition group-hover:opacity-100" />
+                            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 hover:shadow-lg">
+                              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-amber-300/60 to-transparent opacity-60" />
 
                               <div className="flex items-start justify-between gap-3">
                                 <div>
-                                  <h4 className="text-lg font-semibold text-neutral-900">
+                                  <h4 className="text-lg font-semibold text-white">
                                     {place.name}
                                   </h4>
-                                  <p className="mt-1 text-sm text-neutral-600">
+                                  <p className="mt-1 text-sm text-white/70">
                                     {place.neighborhood} •{" "}
                                     {priceToDollarSigns(place.price)}
                                   </p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                  <span className="shrink-0 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs text-neutral-700">
+                                  <span className="shrink-0 rounded-full border border-white/10 bg-black/20 px-2 py-1 text-xs text-white/80">
                                     {place.vibe}
                                   </span>
                                   <span
                                     className={[
                                       "shrink-0 rounded-full border px-2 py-1 text-xs",
                                       isFav
-                                        ? "border-black bg-black text-white"
-                                        : "border-neutral-200 bg-white text-neutral-700",
+                                        ? "border-amber-300/60 bg-amber-400/10 text-amber-100"
+                                        : "border-white/10 bg-white/5 text-white/80",
                                     ].join(" ")}
                                   >
                                     {isFav ? "★" : "☆"}
@@ -771,7 +883,7 @@ export default function Home() {
                                 </div>
                               </div>
 
-                              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-neutral-700">
+                              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/75">
                                 {place.description}
                               </p>
 
@@ -779,14 +891,14 @@ export default function Home() {
                                 {place.tags.map((t) => (
                                   <span
                                     key={`${place.id}-${t}`}
-                                    className="rounded-full border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700"
+                                    className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-xs text-white/75"
                                   >
                                     {t}
                                   </span>
                                 ))}
                               </div>
 
-                              <div className="mt-5 text-xs font-medium text-neutral-500 transition group-hover:text-neutral-800">
+                              <div className="mt-5 text-xs font-medium text-white/60 transition group-hover:text-white/80">
                                 View details →
                               </div>
                             </div>
@@ -802,25 +914,30 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-neutral-950 py-10 text-center text-sm text-white/70">
-        Built in Philly 🖤 • vibe-a-holic
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-[#0B0B10] py-10 text-center text-sm text-white/60">
+        Built in Philly • vibe-a-holic
+        <br />
+        <span className="text-xs">
+          Favorites are saved on your device (nothing is uploaded).
+        </span>
       </footer>
 
       {/* Details Modal */}
       {activePlace && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           onClick={() => setActivePlace(null)}
         >
           <div
-            className="w-full max-w-2xl overflow-hidden rounded-3xl border bg-white text-neutral-900 shadow-xl"
+            className="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#0F1117] text-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-b bg-neutral-50 p-6">
+            <div className="border-b border-white/10 bg-black/20 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold">{activePlace.name}</h2>
-                  <p className="mt-1 text-sm text-neutral-600">
+                  <h2 className="text-2xl font-semibold">{activePlace.name}</h2>
+                  <p className="mt-1 text-sm text-white/70">
                     {activePlace.neighborhood} •{" "}
                     {priceToDollarSigns(activePlace.price)} • {activePlace.vibe}
                   </p>
@@ -828,7 +945,7 @@ export default function Home() {
 
                 <button
                   onClick={() => setActivePlace(null)}
-                  className="rounded-2xl border bg-white px-3 py-2 text-sm font-medium transition hover:bg-neutral-100"
+                  className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white/90 backdrop-blur transition hover:bg-white/10"
                 >
                   Close
                 </button>
@@ -836,22 +953,30 @@ export default function Home() {
             </div>
 
             <div className="p-6">
-              <p className="text-sm leading-relaxed text-neutral-800">
+              <p className="text-sm leading-relaxed text-white/80">
                 {activePlace.description}
               </p>
 
-              <div className="mt-5 rounded-2xl border bg-neutral-50 p-4">
-                <p className="text-sm">
-                  <span className="font-semibold">Address:</span>{" "}
+              <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p className="text-sm text-white/80">
+                  <span className="font-semibold text-white">Address:</span>{" "}
                   {activePlace.address}
                 </p>
+                <p className="mt-1 text-xs text-white/60">
+                  Saved places stay on this device (no account needed).
+                </p>
               </div>
+
+              <p className="mt-3 text-sm text-white/70">
+                Tip: If you’re unsure, start with something comfortable — cozy
+                spots tend to feel easiest for first dates and catch-ups.
+              </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {activePlace.tags.map((t) => (
                   <span
                     key={`${activePlace.id}-modal-${t}`}
-                    className="rounded-full border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700"
+                    className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-xs text-white/75"
                   >
                     {t}
                   </span>
@@ -865,17 +990,31 @@ export default function Home() {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                  className="rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-black transition hover:bg-amber-400"
                 >
                   Open in Maps
                 </a>
 
                 <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(activePlace.address);
+                      showToast("Address copied.");
+                    } catch {
+                      showToast("Couldn’t copy.");
+                    }
+                  }}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10"
+                >
+                  Copy address
+                </button>
+
+                <button
                   className={[
-                    "rounded-2xl border bg-white px-5 py-3 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100",
+                    "rounded-2xl border bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10",
                     favorites[activePlace.id]
-                      ? "border-black"
-                      : "border-neutral-300",
+                      ? "border-amber-300/60"
+                      : "border-white/10",
                   ].join(" ")}
                   onClick={() => {
                     toggleFavorite(activePlace.id);
@@ -896,7 +1035,7 @@ export default function Home() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-2 text-sm text-white shadow-lg backdrop-blur">
           {toast}
         </div>
       )}

@@ -105,7 +105,7 @@ function HomeClient() {
     }
   }
 
-  
+
   const places: Place[] = useMemo(
     () => [
       // FIRST DATE
@@ -615,7 +615,7 @@ function HomeClient() {
 
           <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 backdrop-blur">
             <span className="h-2 w-2 rounded-full bg-amber-400" />
-            Calm, curated Philly picks — sorted by vibe
+            Calm, curated Philly picks, sorted by vibe
           </div>
 
           <h1 className="mt-10 text-5xl font-semibold tracking-tight md:text-6xl">
@@ -623,7 +623,7 @@ function HomeClient() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/80">
-            Comforting, trustworthy picks for whatever you’re feeling — first
+            Comforting, trustworthy picks for whatever you’re feeling. First
             dates, cozy nights, study sessions, and low-key hangs. No noise, just
             good options.
           </p>
@@ -802,7 +802,7 @@ function HomeClient() {
                     Let’s find the right place
                   </h3>
                   <p className="mt-2 text-white/70">
-                    Pick a vibe on the left — we’ll show a small, curated list so
+                    Pick a vibe on the left and we’ll show a small, curated list so
                     it’s easy to choose.
                   </p>
                 </div>
@@ -968,7 +968,7 @@ function HomeClient() {
               </div>
 
               <p className="mt-3 text-sm text-white/70">
-                Tip: If you’re unsure, start with something comfortable — cozy
+                Tip: If you’re unsure, start with something comfortable, cozy
                 spots tend to feel easiest for first dates and catch-ups.
               </p>
 
